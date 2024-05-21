@@ -21,8 +21,10 @@
 /* ISO library header files */
 #include <stdbool.h>
 
+#ifdef ACORN_C
 /* RISC OS header files */
 #include "kernel.h"
+#endif
 
 /* Local header files */
 #include "misc.h"
@@ -37,6 +39,7 @@ enum
 /* Platform-specific function */
 bool set_file_type(const char *file_path)
 {
+#ifdef ACORN_C
   _kernel_osfile_block kob;
 
   assert(file_path != NULL);
@@ -45,4 +48,8 @@ bool set_file_type(const char *file_path)
      to the specified file. */
   kob.load = FTYPE_TEQMUSIC;
   return (_kernel_osfile(18, file_path, &kob) != _kernel_ERROR);
+#else
+  (void)file_path;
+  return true;
+#endif
 }

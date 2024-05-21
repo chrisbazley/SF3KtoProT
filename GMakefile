@@ -11,7 +11,7 @@ StripBadPre = sed -r 's@/[A-Za-z]+:[^ ]*@@g' < $*T.d >
 DeleteTempDep = delete d.$*T
 
 # Toolflags:
-CCCommonFlags = -c -IC: -mlibscl -mthrowback -Wall -Wextra -pedantic -std=c99 -MMD -MP -MF $*T.d -o $@
+CCCommonFlags = -c -IC: -DACORN_C -mlibscl -mthrowback -Wall -Wextra -pedantic -std=c99 -MMD -MP -MF $*T.d -o $@
 CCFlags = $(CCCommonFlags) -DNDEBUG -O3
 CCDebugFlags = $(CCCommonFlags) -g -DUSE_CBDEBUG -DDEBUG_OUTPUT -DFORTIFY
 LinkCommonFlags = -LC: -mlibscl -o $@

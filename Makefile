@@ -1,38 +1,44 @@
 # Project:   SF3KtoProT
 
 # Tools
-CC = cc
-Link = link
+CC = gcc
+Link = gcc
 
 # Toolflags:
-CCCommonFlags = -c -depend !Depend -IC: -throwback -fahi -apcs 3/32/fpe2/swst/fp/nofpr -memaccess -L22-S22-L41
-CCflags = $(CCCommonFlags) -DNDEBUG -Otime
-CCDebugFlags = $(CCCommonFlags) -g -DUSE_CBDEBUG -DFORTIFY -DDEBUG_OUTPUT
-Linkflags = -aif
-LinkDebugFlags = $(Linkflags) -d
+CCCommonFlags = -c -Wall -Wextra -pedantic -std=c99 -MMD -MP -MF $*.d -o $@
+CCFlags = $(CCCommonFlags) -DNDEBUG -O3
+CCDebugFlags = $(CCCommonFlags) -g -DDEBUG_OUTPUT
+LinkCommonFlags = -o $@
+LinkFlags = $(LinkCommonFlags) $(addprefix -l,$(ReleaseLibs))
+LinkDebugFlags = $(LinkCommonFlags) $(addprefix -l,$(DebugLibs))
 
 include MakeCommon
 
-DebugObjects = $(addprefix debug.,$(ObjectListObj))
-ReleaseObjects = $(addprefix o.,$(ObjectListObj))
-DebugLibs = C:o.Stubs Fortify:o.fortify C:o.CBDebugLib C:debug.CBUtilLib \
-            C:debug.GKeyLib C:debug.StreamLib
-ReleaseLibs = C:o.StubsG C:o.CBUtilLib C:o.GKeyLib C:o.StreamLib
+DebugObjects = $(addsuffix .debug,$(ObjectList))
+ReleaseObjects = $(addsuffix .o,$(ObjectList))
+DebugLibs = CBUtildbg Streamdbg GKeydbg
+ReleaseLibs = CBUtil Stream GKey 
 
 # Final targets:
-all: SF3KtoProT SF3KtoProTD
+all: SF3KtoProT SF3KtoProTD 
 
-SF3KtoProT:  $(ReleaseObjects)
-	$(Link) $(LinkFlags) -o $@ $(ReleaseObjects) $(ReleaseLibs)
+SF3KtoProT: $(ReleaseObjects)
+	$(Link) $(ReleaseObjects) $(LinkFlags)
 
 SF3KtoProTD: $(DebugObjects)
-	$(Link) $(LinkDebugFlags) -o $@ $(DebugObjects) $(DebugLibs)
+	$(Link) $(DebugObjects) $(LinkDebugFlags)
 
 # User-editable dependencies:
 .SUFFIXES: .o .c .debug
-.c.o:; $(CC) $(CCflags) -o $@ $<
-.c.debug:; $(CC) $(CCDebugFlags) -o $@ $<
+.c.debug:
+	$(CC) $(CCDebugFlags) $<
+.c.o:
+	$(CC) $(CCFlags) $<
 
 # Static dependencies:
 
 # Dynamic dependencies:
+# These files are generated during compilation to track C header #includes.
+# It's not an error if they don't exist.
+-include $(addsuffix .d,$(ObjectList))
+-include $(addsuffix D.d,$(ObjectList))

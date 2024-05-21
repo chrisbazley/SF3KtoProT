@@ -3,7 +3,7 @@ Star Fighter 3000 to ProTracker convertor
 
 (C) Christopher Bazley, 2009
 
-Version 0.07 (02 May 2020)
+Version 0.08 (21 May 2024)
 
 -----------------------------------------------------------------------------
  1   Introduction and Purpose
@@ -725,21 +725,36 @@ reserve the following characters for wildcards and other special uses: '*',
 - Failure to close the output stream is now detected and treated like any
   other error since data may have been lost.
 
+0.08 (21 May 2024)
+
+- Added a new makefile for use on Linux.
+- Improved the README.md file for Linux users.
+- Elimated a benign switch case fallthrough that caused a compiler warning.
+
 -----------------------------------------------------------------------------
 8  Compiling the software
 -------------------------
 
   Source code is only supplied for the command-line program. To compile
 and link the code you will also require an ISO 9899:1999 standard 'C'
-library and three of my own libraries: CBUtilLib, StreamLib and GKeyLib.
-These are available separately from http://starfighter.acornarcade.com/mysite/
+library and four of my own libraries: CBDebugLib, CBUtilLib, StreamLib
+and GKeyLib. These are available separately from
+https://github.com/chrisbazley/
 
-  Two make files are supplied:
+  The dependency on CBDebugLib isn't very strong: it can be eliminated
+by modifying the make file so that the macroUSE_CBDEBUG is no longer
+predefined.
 
-1. 'Makefile' is intended for use with Acorn Make Utility (AMU) and the
+  Three make files are supplied:
+
+1. 'Makefile' is intended for use with GNU Make and the GNU C Compiler
+   on Linux.
+
+2. 'NMakefile' is intended for use with Acorn Make Utility (AMU) and the
    Norcroft C compiler supplied with the Acorn C/C++ Development Suite.
 
-2. 'GMakefile' is intended for use with GNU Make and the GNU C Compiler.
+3. 'GMakefile' is intended for use with GNU Make and the GNU C Compiler
+   on RISC OS.
 
   The APCS variant specified for the Norcroft compiler is 32 bit for
 compatibility with ARMv5 and fpe2 for compatibility with older versions of
@@ -747,11 +762,42 @@ the floating point emulator. Generation of unaligned data loads/stores is
 disabled for compatibility with ARMv6. When building the code for release,
 it is linked with RISCOS Ltd's generic C library stubs ('StubsG').
 
-  Before compiling the program for other platforms, rename the C source and
-header files with .c and .h file extensions then move them out of their
-respective subdirectories. The only platform-specific code is in filetype.c:
-the set_file_type function. The implementation provided simply sets the RISC
-OS file type of the output file; it could safely be defined as a no-op.
+  The suffix rules generate output files with different suffixes (or in
+different subdirectories, if using the supplied make files on RISC OS),
+depending on the compiler options used to compile the source code:
+
+o: Assertions and debugging output are disabled. The code is optimised for
+   execution speed.
+
+debug: Assertions and debugging output are enabled. The code includes
+       symbolic debugging data (e.g. for use with DDT). The macro FORTIFY
+       is pre-defined to enable Simon P. Bullen's fortified shell for memory
+       allocations.
+
+d: 'GMakefile' passes '-MMD' when invoking gcc so that dynamic dependencies
+   are generated from the #include commands in each source file and output
+   to a temporary file in the directory named 'd'. GNU Make cannot
+   understand rules that contain RISC OS paths such as /C:Macros.h as
+   prerequisites, so 'sed', a stream editor, is used to strip those rules
+   when copying the temporary file to the final dependencies file.
+
+  The above suffixes must be specified in various system variables which
+control filename suffix translation on RISC OS, including at least
+UnixEnv$ar$sfix, UnixEnv$gcc$sfix and UnixEnv$make$sfix.
+Unfortunately GNU Make doesn't apply suffix rules to make object files in
+subdirectories referenced by path even if the directory name is in
+UnixEnv$make$sfix, which is why 'GMakefile' uses the built-in function
+addsuffix instead of addprefix to construct lists of the objects to be
+built (e.g. foo.o instead of o.foo).
+
+  Before compiling the library for RISC OS, move the C source and header
+files with .c and .h suffixes into subdirectories named 'c' and 'h' and
+remove those suffixes from their names. You probably also need to create
+'o', 'd' and 'debug' subdirectories for compiler output.
+
+The only platform-specific code is the EXT_SEPARATOR and PATH_SEPARATOR
+macro definitions in misc.h. These must be defined according to the file
+name convention on the target platform (e.g. '.' and '\' for DOS or Windows).
 
 -----------------------------------------------------------------------------
 9  Licence and Disclaimer

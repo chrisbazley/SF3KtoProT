@@ -1208,6 +1208,7 @@ static bool transcode_patterns(const unsigned int  flags,
           switch (sample->type) {
             case SampleInfo_Type_Unused:
               blank = true; /* undefined sample */
+              break;
 
             case SampleInfo_Type_Effect:
               if ((flags & FLAGS_ALLOW_SFX) == 0)

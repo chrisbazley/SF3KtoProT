@@ -1,0 +1,38 @@
+# Project:   SF3KtoProT
+
+# Tools
+CC = cc
+Link = link
+
+# Toolflags:
+CCCommonFlags = -c -depend !Depend -IC: -DACORN_C -throwback -fahi -apcs 3/32/fpe2/swst/fp/nofpr -memaccess -L22-S22-L41
+CCflags = $(CCCommonFlags) -DNDEBUG -Otime
+CCDebugFlags = $(CCCommonFlags) -g -DUSE_CBDEBUG -DFORTIFY -DDEBUG_OUTPUT
+Linkflags = -aif
+LinkDebugFlags = $(Linkflags) -d
+
+include MakeCommon
+
+DebugObjects = $(addprefix debug.,$(ObjectListObj))
+ReleaseObjects = $(addprefix o.,$(ObjectListObj))
+DebugLibs = C:o.Stubs Fortify:o.fortify C:o.CBDebugLib C:debug.CBUtilLib \
+            C:debug.GKeyLib C:debug.StreamLib
+ReleaseLibs = C:o.StubsG C:o.CBUtilLib C:o.GKeyLib C:o.StreamLib
+
+# Final targets:
+all: SF3KtoProT SF3KtoProTD
+
+SF3KtoProT:  $(ReleaseObjects)
+	$(Link) $(LinkFlags) -o $@ $(ReleaseObjects) $(ReleaseLibs)
+
+SF3KtoProTD: $(DebugObjects)
+	$(Link) $(LinkDebugFlags) -o $@ $(DebugObjects) $(DebugLibs)
+
+# User-editable dependencies:
+.SUFFIXES: .o .c .debug
+.c.o:; $(CC) $(CCflags) -o $@ $<
+.c.debug:; $(CC) $(CCDebugFlags) -o $@ $<
+
+# Static dependencies:
+
+# Dynamic dependencies:
