@@ -19,6 +19,7 @@ music can be replicated fairly accurately in ProTracker format.
   The game's own music and sound effects player is a relocatable module named
 'SFX_Handler'. For brevity, I have referred to it by that name throughout the
 remainder of this manual.
+
 -----------------------------------------------------------------------------
 2   Requirements
 ----------------
@@ -150,8 +151,9 @@ another program.
 
   Convert a SF3000 music file named 'foo' into a compressed ProTracker
 module file named 'bar.gz':
-
+```
   SF3KtoProT ~/star3000/samples foo | gzip > bar.gz
+```
 
 4.4 Batch processing mode
 -------------------------
@@ -291,20 +293,18 @@ by at least one octave and 'Piano' is tuned down by nearly a whole octave!
   The following table shows the range of octave numbers actually used by each
 of the music tracks supplied with Star Fighter 3000:
 
-|             |   Untuned |    Tuned  | ProTracker|
-|-------------|-----------|-----------|-----------|
-|  Track name | Min | Max | Min | Max | Min | Max |
-|-------------|-----|-----|-----|-----|-----|-----|
-|  BonusLevel | 2   | 5   | 2   | 4   | 1   | 3   |
-|  FlightDem1 | 2   | 4   | 2   | 4   | 1   | 3   |
-|  FlightDem2 | 2   | 6   | 3   | 5   | 2   | 4*  |
-|  GameOver   | 1   | 3   | 1   | 3   | 0*  | 2   |
-|  GameStart  | 2   | 3   | 2   | 4   | 1   | 3   |
-|  HighScore  | 2   | 5   | 2   | 5   | 1   | 4*  |
-|  Intro1     | 1   | 4   | 1   | 4   | 0*  | 3   |
-|  MissionCom | 2   | 5   | 2   | 4   | 1   | 3   |
-|  Toccatta   | 1   | 5   | 1   | 5   | 0*  | 4*  |
-|  TopScore   | 1   | 6   | 1   | 5   | 0*  | 4*  |
+|  Track name | Untuned Min | Untuned Max | Tuned Min | Tuned Max | ProTracker Min | ProTracker Max |
+|-------------|-------------|-------------|-----------|-----------|----------------|----------------|
+|  BonusLevel | 2           | 5           | 2         | 4         | 1              | 3              |
+|  FlightDem1 | 2           | 4           | 2         | 4         | 1              | 3              |
+|  FlightDem2 | 2           | 6           | 3         | 5         | 2              | 4*             |
+|  GameOver   | 1           | 3           | 1         | 3         | 0*             | 2              |
+|  GameStart  | 2           | 3           | 2         | 4         | 1              | 3              |
+|  HighScore  | 2           | 5           | 2         | 5         | 1              | 4*             |
+|  Intro1     | 1           | 4           | 1         | 4         | 0*             | 3              |
+|  MissionCom | 2           | 5           | 2         | 4         | 1              | 3              |
+|  Toccatta   | 1           | 5           | 1         | 5         | 0*             | 4*             |
+|  TopScore   | 1           | 6           | 1         | 5         | 0*             | 4*             |
 
   It can be seen that 'GameOver', 'Intro1', 'Toccatta' and 'TopScore' contain
 notes which are too low to be represented within the standard ProTracker
@@ -592,7 +592,7 @@ On RISC OS, the largest value representable by a 'long' integer is one less
 than 2 to the power of 31, which means that tuning values must lie within the
 range -22369599, 22369599 (1048575 octaves).
 
-  The grammar of a samples index file is as follows (in Backus�Naur Form):
+  The grammar of a samples index file is as follows (in Backus-Naur Form):
 ```
   <file>       ::= { <line> }*
   <line>       ::= <comment> | <noncomment>
