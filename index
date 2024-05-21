@@ -1,0 +1,27 @@
+# Ancillary information about sound samples for Star Fighter 3000
+
+# ID File name   Repeat Type Tuning
+# -- ---------   ------ ---- ------
+  0  Thruster    0      E    0
+  1  Laser       0      E    0
+  2  SmallExp    0      E    0
+  3  Explosion   0      E    0
+  4  Fuzz        0      E    0
+  5  Beep        0      E    0
+  6  TextBeep    0      E    0
+  7  Missile     0      E    0
+  8  IncMissle   0      E    0
+  9  ShieldWarn  0      E    0
+  10 PickUp      0      E    0
+  11 Wind        0      E    0
+  12 Radio       0      M    0
+  13 BassLight   0      M    108
+  14 DrumLight   0      M    2400
+  15 Piano       0      M    -4050
+  16 Snare       0      M    3820
+  17 String      1500   M    4096
+  18 BassHeavy   0      M    5252
+  19 DrumHeavy   0      M    7000
+  20 TomGrab     0      M    864
+  21 Synth       0      M    -2022
+  22 HiHat       0      M    7500
