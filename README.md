@@ -730,6 +730,7 @@ reserve the following characters for wildcards and other special uses: '*',
 - Added a new makefile for use on Linux.
 - Improved the README.md file for Linux users.
 - Elimated a benign switch case fallthrough that caused a compiler warning.
+- Some code is now conditionally compiled only if the macro ACORN_C is defined.
 
 -----------------------------------------------------------------------------
 8  Compiling the software
