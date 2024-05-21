@@ -743,7 +743,7 @@ and GKeyLib. These are available separately from
 https://github.com/chrisbazley/
 
   The dependency on CBDebugLib isn't very strong: it can be eliminated
-by modifying the make file so that the macroUSE_CBDEBUG is no longer
+by modifying the make file so that the macro USE_CBDEBUG is no longer
 predefined.
 
   Three make files are supplied:
