@@ -459,12 +459,12 @@ The type of each directive is determined by whether its first bit is set:
    copied to the current output position. Otherwise, the number of bytes
    (0-511) to be copied is encoded using 9 bits.
 
-    If the read pointer is before the start of the output buffer then zeros
-  should be written at the output position until it becomes valid again. This
-  is a legitimate method of initialising areas of memory with zeros.
+     If the read pointer is before the start of the output buffer then zeros
+   should be written at the output position until it becomes valid again. This
+   is a legitimate method of initialising areas of memory with zeros.
 
-    It isn't possible to replicate the whole of the preceding 512 bytes in
-  one operation.
+     It isn't possible to replicate the whole of the preceding 512 bytes in
+   one operation.
 
   The decompressors written by the Fourth Dimension and David O'Shea always
 copy at least 1 byte from the source offset, even if the compressed bitstream
