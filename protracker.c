@@ -1372,11 +1372,12 @@ static bool read_track(const unsigned int flags, Reader * const r, SFTrack * con
 
   assert(music_data->last_pattern_no >= 0);
   size_t const bytes = ((size_t)music_data->last_pattern_no + 1) * sizeof(SFPattern);
-  music_data->patterns = malloc(bytes);
-  if (music_data->patterns == NULL) {
+  _Optional SFPattern *const patterns = malloc(bytes);
+  if (patterns == NULL) {
     fprintf(stderr, "Failed to allocate %zu bytes for SF3000 patterns data\n", bytes);
     return false;
   }
+  music_data->patterns = &*patterns;
 
   bool success = true;
   for (long int pattern_no = 0;
