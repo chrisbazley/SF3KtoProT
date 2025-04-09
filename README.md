@@ -3,7 +3,7 @@ Star Fighter 3000 to ProTracker convertor
 
 (C) Christopher Bazley, 2009
 
-Version 0.08 (21 May 2024)
+Version 0.09 (09 Apr 2025)
 
 -----------------------------------------------------------------------------
  1   Introduction and Purpose
@@ -731,6 +731,9 @@ reserve the following characters for wildcards and other special uses: '*',
 - Improved the README.md file for Linux users.
 - Elimated a benign switch case fallthrough that caused a compiler warning.
 - Some code is now conditionally compiled only if the macro ACORN_C is defined.
+
+0.09 (09 Apr 2025)
+- Dogfooding the _Optional qualifier.
 
 -----------------------------------------------------------------------------
 8  Compiling the software

@@ -91,7 +91,7 @@ typedef struct {
 typedef struct {
   int count;
   int alloc;
-  PTSampleInfo *sample_info;
+  _Optional PTSampleInfo *sample_info;
 } PTSampleArray;
 
 typedef struct {
@@ -114,7 +114,7 @@ typedef struct {
   uint8_t voice_table[NUM_SF_VOICES];
   int32_t last_pattern_no;
   uint8_t play_order[MAX_SF_PATTERNS];
-  SFPattern *patterns;
+  _Optional SFPattern *patterns;
 } SFTrack;
 
 typedef enum {
@@ -220,13 +220,19 @@ static bool write_sample_table(const unsigned int flags,
   assert(f != NULL);
   assert(!ferror(f));
 
+  _Optional const PTSampleInfo * const ptsi_array = pt_samples->sample_info;
+  _Optional const SampleInfo * const sample_array = sf_samples->sample_info;
+  if (!ptsi_array || !sample_array) {
+    return false;
+  }
+
   for (int pt_sample_no = 0;
        pt_sample_no < pt_samples->count;
        pt_sample_no++) {
     Fortify_CheckAllMemory();
 
-    const PTSampleInfo * const ptsi = pt_samples->sample_info + pt_sample_no;
-    const SampleInfo * const sample = sf_samples->sample_info + ptsi->sample_num;
+    const PTSampleInfo * const ptsi = &ptsi_array[pt_sample_no];
+    const SampleInfo * const sample = &sample_array[ptsi->sample_num];
 
     /* Write sample name, padded with null bytes */
     char sample_name[22];
@@ -409,6 +415,12 @@ static bool integrate_samples(const unsigned int flags,
   assert(f != NULL);
   assert(!ferror(f));
 
+  _Optional const PTSampleInfo * const ptsi_array = pt_samples->sample_info;
+  _Optional const SampleInfo * const sample_array = sf_samples->sample_info;
+  if (!ptsi_array || !sample_array) {
+    return false;
+  }
+
   for (int pt_sample_no = 0;
        pt_sample_no < pt_samples->count && success;
        pt_sample_no++) {
@@ -418,8 +430,8 @@ static bool integrate_samples(const unsigned int flags,
     if ((flags & FLAGS_VERBOSE) != 0)
       printf("About to write data for ProTracker sample %d\n", pt_sample_no);
 
-    const PTSampleInfo * const ptsi = pt_samples->sample_info + pt_sample_no;
-    const SampleInfo * const sample = sf_samples->sample_info + ptsi->sample_num;
+    const PTSampleInfo * const ptsi = &ptsi_array[pt_sample_no];
+    const SampleInfo * const sample = &sample_array[ptsi->sample_num];
 
     /* Construct full path name of sample data file */
     StringBuffer sample_path;
@@ -458,7 +470,7 @@ static bool integrate_samples(const unsigned int flags,
 }
 
 static signed int note_to_pt(const SFChannelData * const com,
-                             int * const note_out,
+                             _Optional int * const note_out,
                              const signed long semitone_tuning)
 {
   /* Convert the SF3000 octave and note numbers into ProTracker format.
@@ -570,8 +582,8 @@ static bool make_pt_sample(PTSampleInfo * const ptsi,
 static signed int calc_octaves_cheat(const unsigned int flags,
                                      const SFChannelData * const com,
                                      const signed long pt_tuning,
-                                     int * const octave_out,
-                                     int * const note_out)
+                                     _Optional int * const octave_out,
+                                     _Optional int * const note_out)
 {
   signed int octave, octaves_cheat, min_octave, max_octave;
 
@@ -750,11 +762,16 @@ static int find_pt_sample(const PTSampleArray * const pt_samples,
   assert(pt_samples->count <= pt_samples->alloc);
   assert((pt_samples->alloc == 0) == (pt_samples->sample_info == NULL));
 
+  _Optional const PTSampleInfo * const ptsi_array = pt_samples->sample_info;
+  if (!ptsi_array) {
+    return 0;
+  }
+
   for (int pt_sample_no = 0;
        pt_sample_no < pt_samples->count;
        pt_sample_no++)
   {
-    const PTSampleInfo * const ptsi = pt_samples->sample_info + pt_sample_no;
+    const PTSampleInfo * const ptsi = &ptsi_array[pt_sample_no];
     if (ptsi->num_repeats == num_repeats &&
         ptsi->sample_num == sample_num &&
         ptsi->octaves_cheat == octaves_cheat)
@@ -804,7 +821,7 @@ static bool add_pt_sample(const unsigned int flags,
       pt_samples->alloc *= 2;
 
     const size_t new_size = pt_samples->alloc * sizeof(PTSampleInfo);
-    PTSampleInfo * const new_buf = realloc(pt_samples->sample_info, new_size);
+    _Optional PTSampleInfo * const new_buf = realloc(pt_samples->sample_info, new_size);
     if (new_buf == NULL) {
       fprintf(stderr, "Failed to allocate %zu bytes for ProTracker "
                       "sample info\n", new_size);
@@ -814,8 +831,10 @@ static bool add_pt_sample(const unsigned int flags,
   }
 
   /* Populate the next element of the ProTracker samples array */
-  assert(pt_samples->sample_info != NULL);
-  PTSampleInfo * const ptsi = pt_samples->sample_info + pt_samples->count;
+  if (pt_samples->sample_info == NULL) {
+    return false;
+  }
+  PTSampleInfo * const ptsi = &pt_samples->sample_info[pt_samples->count];
   ptsi->sample_num = sample_num;
   ptsi->pt_tuning = pt_tuning;
   if (!make_pt_sample(ptsi,
@@ -868,11 +887,16 @@ static bool make_pt_sample_list(const unsigned int flags,
            music_data->last_pattern_no + 1);
   }
 
+  _Optional const SFPattern * const patterns = music_data->patterns;
+  if (!patterns) {
+    success = false;
+  }
+
   for (long int pattern_no = 0;
        (pattern_no <= music_data->last_pattern_no) && success;
        pattern_no++)
   {
-    const SFPattern * const pattern = music_data->patterns + pattern_no;
+    const SFPattern * const pattern = &patterns[pattern_no];
 
     Fortify_CheckAllMemory();
 
@@ -898,10 +922,16 @@ static bool make_pt_sample_list(const unsigned int flags,
 
         /* Decode the voice number into a sample number */
         const int sample_num = music_data->voice_table[com->voice_act & 0xf];
-        const SampleInfo * const sample = sf_samples->sample_info + sample_num;
-        if ((sample_num >= sf_samples->count) ||
+
+        _Optional const SampleInfo * const sample = sf_samples->sample_info ?
+          &sf_samples->sample_info[sample_num] :
+          NULL;
+
+        if (!sample ||
+            (sample_num >= sf_samples->count) ||
             (sample->type == SampleInfo_Type_Unused)) {
-          printf("%d %d %d\n", sf_samples->count, sample_num, sample->type);
+          printf("%d %d %d\n", sf_samples->count, sample_num,
+                 sample ? sample->type : SampleInfo_Type_Unused);
           fprintf(stderr, "Warning: Sample number %d is not defined!\n",
                           sample_num);
           continue;
@@ -935,7 +965,7 @@ static bool make_pt_sample_list(const unsigned int flags,
                            num_repeats,
                            sample_num,
                            octaves_cheat) == 0) {
-          success = add_pt_sample(flags, pt_samples, sample,
+          success = add_pt_sample(flags, pt_samples, &*sample,
                                   num_repeats, sample_num, octaves_cheat,
                                   pt_tuning);
         }
@@ -1050,7 +1080,7 @@ static bool transcode_patterns(const unsigned int  flags,
 
   for (long int pattern_no = 0; pattern_no <= last_pattern_no; pattern_no++)
   {
-    const SFPattern *pattern;
+    _Optional const SFPattern *pattern;
 
     Fortify_CheckAllMemory();
 
@@ -1137,7 +1167,7 @@ static bool transcode_patterns(const unsigned int  flags,
           /* Get a pointer to the ProTracker sample information */
           assert(channels[c2].pt_sample_no > 0);
           assert(channels[c2].pt_sample_no <= pt_samples->count);
-          ptsi = pt_samples->sample_info + channels[c2].pt_sample_no - 1;
+          ptsi = &pt_samples->sample_info[channels[c2].pt_sample_no - 1];
 
           /* Make the target pitch specific to the variation of the sample
              playing on this channel (which may have been pre-tuned to a
@@ -1195,7 +1225,7 @@ static bool transcode_patterns(const unsigned int  flags,
         const SFChannelData * const com = &division->channels[c];
         bool blank = false;
         const int sample_num = music_data->voice_table[com->voice_act & 0xf];
-        const SampleInfo * const sample = sf_samples->sample_info + sample_num;
+        const SampleInfo * const sample = &sf_samples->sample_info[sample_num];
 
         if (!command(com)) {
           blank = true;
@@ -1353,7 +1383,7 @@ static bool read_track(const unsigned int flags, Reader * const r, SFTrack * con
        pattern_no <= music_data->last_pattern_no && success;
        pattern_no++)
   {
-    SFPattern * const pattern = music_data->patterns + pattern_no;
+    SFPattern * const pattern = &music_data->patterns[pattern_no];
 
     Fortify_CheckAllMemory();
 

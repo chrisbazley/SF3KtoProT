@@ -43,4 +43,35 @@
 
 #endif /* USE_CBDEBUG */
 
+#ifdef USE_OPTIONAL
+#include <stdlib.h>
+
+#undef NULL
+#define NULL ((_Optional void *)0)
+
+static inline void optional_free(_Optional void *x)
+{
+    free((void *)x);
+}
+#undef free
+#define free(x) optional_free(x)
+
+static inline _Optional void *optional_malloc(size_t n)
+{
+    return malloc(n);
+}
+#undef malloc
+#define malloc(n) optional_malloc(n)
+
+static inline _Optional void *optional_realloc(_Optional void *p, size_t n)
+{
+    return realloc((void *)p, n);
+}
+#undef realloc
+#define realloc(p, n) optional_realloc(p, n)
+
+#else
+#define _Optional
+#endif
+
 #endif /* MISC_H */

@@ -27,7 +27,7 @@ typedef struct {
 typedef struct {
   int count;
   int alloc;
-  SampleInfo *sample_info;
+  _Optional SampleInfo *sample_info;
 } SampleArray;
 
 extern bool load_sample_index(bool          verbose,
