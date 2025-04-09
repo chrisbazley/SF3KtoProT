@@ -143,7 +143,7 @@ static bool add_sf_sample(const bool verbose, SampleArray * const sf_samples,
   assert((repeat_offset / 2) < (len / 4));
   assert((type == SampleInfo_Type_Music) || (type == SampleInfo_Type_Effect));
 
-  if (sample_id >= sf_samples->alloc) {
+  if (sample_id >= sf_samples->alloc || !sf_samples->sample_info) {
     /* (Re-)allocate buffer for data */
 
     DEBUGF("Sample ID %d is beyond end of array\n", sample_id);
@@ -159,7 +159,7 @@ static bool add_sf_sample(const bool verbose, SampleArray * const sf_samples,
            sf_samples->alloc, new_limit);
 
     const size_t new_size = new_limit * sizeof(SampleInfo);
-    SampleInfo * const new_buf = realloc(sf_samples->sample_info, new_size);
+    _Optional SampleInfo * const new_buf = realloc(sf_samples->sample_info, new_size);
 
     if (new_buf == NULL) {
       fprintf(stderr,
@@ -176,7 +176,7 @@ static bool add_sf_sample(const bool verbose, SampleArray * const sf_samples,
     sf_samples->count = sample_id+1;
   }
   assert(sf_samples->sample_info != NULL);
-  SampleInfo * const write_ptr = sf_samples->sample_info + sample_id;
+  SampleInfo * const write_ptr = &sf_samples->sample_info[sample_id];
 
   strncpy(write_ptr->file_name, file_name, sizeof(write_ptr->file_name) - 1);
   write_ptr->file_name[sizeof(write_ptr->file_name) - 1] = '\0';
@@ -256,8 +256,7 @@ static bool parse_index(const bool verbose, FILE * const f,
     if (sample_id < 0 || sample_id > UCHAR_MAX) {
       report_error("Bad ID", line_no, index_file);
       success = false;
-    } else if (sample_id < sf_samples->count) {
-      assert(sf_samples->sample_info != NULL);
+    } else if (sample_id < sf_samples->count && sf_samples->sample_info) {
       if (sf_samples->sample_info[sample_id].type != SampleInfo_Type_Unused) {
         report_error("ID already used", line_no, index_file);
         success = false;

@@ -48,8 +48,9 @@ enum {
                      the compression algorithm */
 };
 
-static bool process_file(const char * const input_file, const char * const output_file,
-                         const char *song_name,
+static bool process_file(_Optional const char * const input_file,
+                         _Optional const char * const output_file,
+                         _Optional const char *song_name,
                          const char * const samples_dir,
                          const SampleArray * const sf_samples,
                          const unsigned int flags, const bool raw)
@@ -61,20 +62,20 @@ static bool process_file(const char * const input_file, const char * const outpu
   assert((sf_samples->alloc == 0) == (sf_samples->sample_info == NULL));
   assert(!(flags & ~FLAGS_ALL));
 
-  FILE *out = NULL, *in = NULL;
+  _Optional FILE *out = NULL, *in = NULL;
   bool success = true;
 
   if (input_file != NULL) {
     if (song_name == NULL) {
       /* Use the leaf part of the input file path as the song name */
-      song_name = strtail(input_file, PATH_SEPARATOR, 1);
+      song_name = strtail(&*input_file, PATH_SEPARATOR, 1);
     }
 
     /* An explicit input file name was specified, so open it */
     if (flags & FLAGS_VERBOSE)
       printf("Opening input file '%s'\n", input_file);
 
-    in = fopen(input_file, "rb");
+    in = fopen(&*input_file, "rb");
     if (in == NULL) {
       fprintf(stderr,
               "Failed to open input file: %s\n",
@@ -96,7 +97,7 @@ static bool process_file(const char * const input_file, const char * const outpu
       if (flags & FLAGS_VERBOSE)
         printf("Opening output file '%s'\n", output_file);
 
-      out = fopen(output_file, "wb");
+      out = fopen(&*output_file, "wb");
       if (out == NULL) {
         fprintf(stderr,
                 "Failed to open output file: %s\n",
@@ -109,22 +110,22 @@ static bool process_file(const char * const input_file, const char * const outpu
     }
   }
 
-  if (success) {
+  if (success && in) {
     Reader r;
     if (raw) {
-      reader_raw_init(&r, in);
+      reader_raw_init(&r, &*in);
     } else {
-      success = reader_gkey_init(&r, HistoryLog2, in);
+      success = reader_gkey_init(&r, HistoryLog2, &*in);
     }
 
-    if (success) {
+    if (success && song_name && out) {
       /* Create the ProTracker output file */
       success = create_protracker(flags,
-                                  song_name,
+                                  &*song_name,
                                   &r,
                                   samples_dir,
                                   sf_samples,
-                                  out);
+                                  &*out);
       reader_destroy(&r);
     }
   }
@@ -132,13 +133,13 @@ static bool process_file(const char * const input_file, const char * const outpu
   if (in != NULL && in != stdin) {
     if (flags & FLAGS_VERBOSE)
       puts("Closing input file");
-    fclose(in);
+    fclose(&*in);
   }
 
   if (out != NULL && out != stdout) {
     if (flags & FLAGS_VERBOSE)
       puts("Closing output file");
-    if (fclose(out)) {
+    if (fclose(&*out)) {
       fprintf(stderr, "Failed to close output file: %s\n", strerror(errno));
       success = false;
     }
@@ -146,14 +147,14 @@ static bool process_file(const char * const input_file, const char * const outpu
 
   if (output_file != NULL) {
     /* Use OS-specific functionality to update the output file's metadata */
-    if (success && !set_file_type(output_file)) {
-      fprintf(stderr, "Failed to set type of output file '%s'\n", output_file);
+    if (success && !set_file_type(&*output_file)) {
+      fprintf(stderr, "Failed to set type of output file '%s'\n", &*output_file);
       success = false;
     }
 
     /* Delete malformed output unless debugging is enabled */
     if (!success && !(flags & FLAGS_VERBOSE)) {
-      remove(output_file);
+      remove(&*output_file);
     }
   }
 
@@ -217,8 +218,8 @@ int main(int argc, const char *argv[])
 #endif
 {
   unsigned int flags = 0;
-  const char *output_file = NULL, *input_file = NULL, *index_file = NULL, *samples_dir = NULL;
-  const char *song_name = NULL;
+  _Optional const char *output_file = NULL, *input_file = NULL, *index_file = NULL;
+  _Optional const char *song_name = NULL;
   bool batch = false, raw = false;
 
   assert(argc > 0);
@@ -289,7 +290,7 @@ int main(int argc, const char *argv[])
     fprintf(stderr, "Must specify a directory containing sound sample files\n");
     return syntax_msg(stderr, argv[0]);
   }
-  samples_dir = argv[n++];
+  const char *const samples_dir = argv[n++];
 
   if (batch) {
     if (output_file != NULL) {
@@ -353,7 +354,7 @@ int main(int argc, const char *argv[])
 
   if (rtn == EXIT_SUCCESS) {
     /* Load the sound samples index file */
-    if (!load_sample_index((flags & FLAGS_VERBOSE) != 0, index_file, samples_dir,
+    if (!load_sample_index((flags & FLAGS_VERBOSE) != 0, &*index_file, samples_dir,
                            &sf_samples)) {
       rtn = EXIT_FAILURE;
     }
