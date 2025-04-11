@@ -70,6 +70,13 @@ static inline _Optional void *optional_realloc(_Optional void *p, size_t n)
 #undef realloc
 #define realloc(p, n) optional_realloc(p, n)
 
+static inline _Optional FILE *optional_fopen(const char *name, const char *mode)
+{
+    return fopen(name, mode);
+}
+#undef fopen
+#define fopen(p, n) optional_fopen(p, n)
+
 #else
 #define _Optional
 #endif

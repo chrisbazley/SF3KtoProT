@@ -735,6 +735,10 @@ reserve the following characters for wildcards and other special uses: '*',
 0.09 (09 Apr 2025)
 - Dogfooding the _Optional qualifier.
 
+0.10 (11 Apr 2025)
+- Treat the result of fopen as a pointer to _Optional FILE.
+- Updated the version string.
+
 -----------------------------------------------------------------------------
 8  Compiling the software
 -------------------------

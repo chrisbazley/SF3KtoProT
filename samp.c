@@ -69,15 +69,15 @@ static long int get_sample_len(const bool verbose,
       printf("Opening sample data file '%s'\n",
              stringbuffer_get_pointer(&sample_path));
 
-    FILE * const sample_handle = fopen(
+    _Optional FILE * const sample_handle = fopen(
          stringbuffer_get_pointer(&sample_path), "rb");
     if (sample_handle == NULL) {
       fprintf(stderr,
               "Failed to open sample data file: %s\n",
               strerror(errno));
     } else {
-      if (!fseek(sample_handle, 0, SEEK_END))
-        len = ftell(sample_handle);
+      if (!fseek(&*sample_handle, 0, SEEK_END))
+        len = ftell(&*sample_handle);
 
       if (len < 0) {
         fprintf(stderr,
@@ -92,7 +92,7 @@ static long int get_sample_len(const bool verbose,
       if (verbose)
         puts("Closing sample data file");
 
-      fclose(sample_handle);
+      fclose(&*sample_handle);
     }
   }
 
@@ -324,18 +324,18 @@ bool load_sample_index(const bool verbose, const char * const index_file,
   if (verbose)
     printf("Opening sound samples index file '%s'\n", index_file);
 
-  FILE * const f = fopen(index_file, "r"); /* open text for reading */
+  _Optional FILE * const f = fopen(index_file, "r"); /* open text for reading */
   if (f == NULL) {
     fprintf(stderr,
             "Failed to open samples index file: %s\n",
             strerror(errno));
   } else {
-    success = parse_index(verbose, f, samples_dir, index_file, sf_samples);
+    success = parse_index(verbose, &*f, samples_dir, index_file, sf_samples);
 
     if (verbose)
       puts("Closing sound samples index file");
 
-    fclose(f);
+    fclose(&*f);
   }
   return success;
 }

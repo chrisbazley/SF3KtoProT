@@ -447,20 +447,20 @@ static bool integrate_samples(const unsigned int flags,
       if ((flags & FLAGS_VERBOSE) != 0)
         printf("Opening sample data file '%s'\n", stringbuffer_get_pointer(&sample_path));
 
-      FILE * const sample_handle = fopen(stringbuffer_get_pointer(&sample_path), "rb");
+      _Optional FILE * const sample_handle = fopen(stringbuffer_get_pointer(&sample_path), "rb");
       if (sample_handle == NULL) {
         fprintf(stderr,
                 "Failed to open sample data file: %s\n",
                 strerror(errno));
         success = false;
       } else {
-        success = write_sample(flags, ptsi, sample, f, sample_handle);
+        success = write_sample(flags, ptsi, sample, f, &*sample_handle);
 
         /* Close the sample data file */
         if ((flags & FLAGS_VERBOSE) != 0)
           puts("Closing sample data file");
 
-        fclose(sample_handle);
+        fclose(&*sample_handle);
       }
     }
     stringbuffer_destroy(&sample_path);
