@@ -3,7 +3,7 @@ Star Fighter 3000 to ProTracker convertor
 
 (C) Christopher Bazley, 2009
 
-Version 0.09 (09 Apr 2025)
+Version 0.11 (11 May 2025)
 
 -----------------------------------------------------------------------------
  1   Introduction and Purpose
@@ -738,6 +738,10 @@ reserve the following characters for wildcards and other special uses: '*',
 0.10 (11 Apr 2025)
 - Treat the result of fopen as a pointer to _Optional FILE.
 - Updated the version string.
+
+0.11 (11 May 2025)
+- Replaced local definitions with an Optional.h header shared with other
+  programs.
 
 -----------------------------------------------------------------------------
 8  Compiling the software
