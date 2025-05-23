@@ -3,7 +3,7 @@ Star Fighter 3000 to ProTracker convertor
 
 (C) Christopher Bazley, 2009
 
-Version 0.11 (11 May 2025)
+Version 0.12 (23 May 2025)
 
 -----------------------------------------------------------------------------
  1   Introduction and Purpose
@@ -742,6 +742,11 @@ reserve the following characters for wildcards and other special uses: '*',
 0.11 (11 May 2025)
 - Replaced local definitions with an Optional.h header shared with other
   programs.
+
+0.12 (23 May 2025)
+- Fix make_pt_sample_list to guard against undefined behaviour caused by
+  calculating the address of a non-existent element of the sample_info array
+  (when sample_num is out of range).
 
 -----------------------------------------------------------------------------
 8  Compiling the software

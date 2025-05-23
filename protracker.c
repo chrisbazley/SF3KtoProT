@@ -923,13 +923,12 @@ static bool make_pt_sample_list(const unsigned int flags,
         /* Decode the voice number into a sample number */
         const int sample_num = music_data->voice_table[com->voice_act & 0xf];
 
-        _Optional const SampleInfo * const sample = sf_samples->sample_info ?
-          &sf_samples->sample_info[sample_num] :
-          NULL;
+        _Optional const SampleInfo * const sample =
+          sf_samples->sample_info && sample_num < sf_samples->count ?
+            &sf_samples->sample_info[sample_num] :
+            NULL;
 
-        if (!sample ||
-            (sample_num >= sf_samples->count) ||
-            (sample->type == SampleInfo_Type_Unused)) {
+        if (!sample || (sample->type == SampleInfo_Type_Unused)) {
           printf("%d %d %d\n", sf_samples->count, sample_num,
                  sample ? sample->type : SampleInfo_Type_Unused);
           fprintf(stderr, "Warning: Sample number %d is not defined!\n",
