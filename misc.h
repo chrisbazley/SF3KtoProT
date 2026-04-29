@@ -45,6 +45,8 @@
 
 #ifdef USE_OPTIONAL
 #include "Optional.h"
+#else
+#define _Optional
 #endif
 
 #endif /* MISC_H */
