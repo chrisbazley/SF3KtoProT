@@ -46,6 +46,6 @@ target_compile_definitions(SF3KtoProT PRIVATE
     $<$<CONFIG:Release>:NDEBUG>
 )
 
-target_compile_options(ChocToObj PRIVATE
+target_compile_options(SF3KtoProT PRIVATE
     $<$<CONFIG:Release>:-O3>
 )
