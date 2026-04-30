@@ -1,0 +1,51 @@
+cmake_minimum_required(VERSION 3.11)
+project(SF3KtoProT C)
+
+include(FetchContent)
+
+FetchContent_Declare(CBUtil GIT_REPOSITORY https://github.com/chrisbazley/CBUtilLib.git GIT_TAG main)
+FetchContent_Declare(Stream GIT_REPOSITORY https://github.com/chrisbazley/StreamLib.git GIT_TAG main)
+
+FetchContent_MakeAvailable(CBUtil Stream)
+
+set(CMAKE_C_STANDARD 99)
+add_compile_options(-pedantic)
+
+if(MSVC)
+    # MSVC equivalent of -Wall -Wextra is /W4
+    add_compile_options(/W4)
+else()
+    # For GCC and Clang
+    add_compile_options(-Wall -Wextra)
+endif()
+
+if(WIN32)
+    add_compile_definitions(PATH_SEPARATOR='\\\\')
+    add_compile_definitions(EXT_SEPARATOR='.')
+elseif(CMAKE_SYSTEM_NAME STREQUAL "RISCos")
+    add_compile_definitions(PATH_SEPARATOR='.')
+    add_compile_definitions(EXT_SEPARATOR='/')
+else()
+    add_compile_definitions(PATH_SEPARATOR='/')
+    add_compile_definitions(EXT_SEPARATOR='.')
+endif()
+
+set(SOURCES 
+    main.c samp.c protracker.c filetype.c
+)
+
+add_executable(SF3KtoProT ${SOURCES})
+
+target_link_libraries(SF3KtoProT PRIVATE 
+    CBUtil
+    Stream
+)
+
+target_compile_definitions(SF3KtoProT PRIVATE
+    $<$<CONFIG:Debug>:DEBUG_OUTPUT>
+    $<$<CONFIG:Release>:NDEBUG>
+)
+
+target_compile_options(ChocToObj PRIVATE
+    $<$<CONFIG:Release>:-O3>
+)
