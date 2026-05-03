@@ -8,7 +8,7 @@ PointerAlignment: Right
 
 AlignAfterOpenBracket: Align
 
-BreakBeforeBraces: Allman
+BreakBeforeBraces: Linux
 
 IndentWidth: 2
 ContinuationIndentWidth: 2
