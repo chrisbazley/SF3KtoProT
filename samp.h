@@ -10,6 +10,10 @@
 /* ISO library header files */
 #include <stdbool.h>
 
+#if !defined(USE_OPTIONAL) && !defined(_Optional)
+#define _Optional
+#endif
+
 typedef enum {
   SampleInfo_Type_Effect,
   SampleInfo_Type_Music,
