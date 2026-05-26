@@ -33,7 +33,9 @@ set(SOURCES
     main.c samp.c protracker.c filetype.c
 )
 
-add_executable(SF3KtoProT ${SOURCES})
+file(GLOB HEADER_FILES CONFIGURE_DEPENDS "*.h")
+
+add_executable(SF3KtoProT ${SOURCES} ${HEADER_FILES})
 
 target_link_libraries(SF3KtoProT PRIVATE 
     CBUtil
