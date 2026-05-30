@@ -44,9 +44,4 @@ target_link_libraries(SF3KtoProT PRIVATE
 
 target_compile_definitions(SF3KtoProT PRIVATE
     $<$<CONFIG:Debug>:DEBUG_OUTPUT>
-    $<$<CONFIG:Release>:NDEBUG>
-)
-
-target_compile_options(SF3KtoProT PRIVATE
-    $<$<CONFIG:Release>:-O3>
 )
