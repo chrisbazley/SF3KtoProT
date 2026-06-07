@@ -9,6 +9,7 @@ FetchContent_Declare(Stream GIT_REPOSITORY https://github.com/chrisbazley/Stream
 FetchContent_MakeAvailable(CBUtil Stream)
 
 set(CMAKE_C_STANDARD 99)
+set(CMAKE_XCODE_ATTRIBUTE_RUN_CLANG_STATIC_ANALYZER "YES")
 
 if(MSVC)
     # MSVC equivalent of -Wall -Wextra is /W4
