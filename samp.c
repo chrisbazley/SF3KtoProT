@@ -213,9 +213,11 @@ static bool parse_index(const bool verbose, FILE * const f,
   assert(index_file != NULL);
   assert(sf_samples != NULL);
 
-  sf_samples->count = 0;
-  sf_samples->alloc = 0;
-  sf_samples->sample_info = NULL;
+  *sf_samples = (SampleArray){
+    .count = 0,
+    .alloc = 0,
+    .sample_info = NULL,
+  };
 
   /* Read one line of text at a time from the samples index file */
   int line_no;
