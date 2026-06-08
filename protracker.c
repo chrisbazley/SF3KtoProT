@@ -1105,8 +1105,12 @@ static bool transcode_patterns(const unsigned int  flags,
         printf("About to transcode pattern %ld\n", pattern_no);
 
       for (int c = 0; c < NUM_PT_CHANNELS; c++) {
-        channels[c].glissando_state = GlissandoState_None;
-        channels[c].sample_num = UCHAR_MAX;
+        channels[c] = (ChannelState){
+          .pt_sample_no = 0,
+          .sample_num = UCHAR_MAX,
+          .target_pitch = 0,
+          .glissando_state = GlissandoState_None,
+        };
         /* Fixed implicit truncation of UINT_MAX to unsigned char, 11/04/2010 */
       }
       pattern = music_data->patterns + pattern_no;
@@ -1286,16 +1290,18 @@ static bool transcode_patterns(const unsigned int  flags,
                                f))
             return false; /* failure */
 
-          channels[c].sample_num = sample_num;
-          channels[c].pt_sample_no = pt_sample_no;
-
           if (channels[c].glissando_state != GlissandoState_None) {
             DEBUGF("New note cancels glissando of sample %d to pitch %d "
                       "on channel %d\n", channels[c].pt_sample_no,
                       channels[c].target_pitch, c);
           }
 
-          channels[c].glissando_state = GlissandoState_None;
+          channels[c] = (ChannelState){
+            .sample_num = sample_num,
+            .pt_sample_no = pt_sample_no,
+            .target_pitch = 0,
+            .glissando_state = GlissandoState_None,
+          };
         }
       }
     }
