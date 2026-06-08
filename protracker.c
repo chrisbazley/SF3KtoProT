@@ -502,15 +502,14 @@ static signed int note_to_pt(const SFChannelData * const com,
 static bool make_pt_sample(PTSampleInfo * const ptsi,
                            const SampleInfo * const sample,
                            const int num_repeats,
-                           const signed int octaves_cheat)
+                           const int sample_num,
+                           const signed int octaves_cheat,
+                           const signed long pt_tuning)
 {
   unsigned long repeat_len, sample_len, repeat_offset;
 
   assert(ptsi != NULL);
   assert(sample != NULL);
-
-  ptsi->num_repeats = num_repeats;
-  ptsi->octaves_cheat = octaves_cheat;
 
   /* The resolution of the sample data will be reduced from 8 to 16 bits. */
   sample_len = sample->len / 2;
@@ -521,14 +520,14 @@ static bool make_pt_sample(PTSampleInfo * const ptsi,
 
   /* If we pre-tune the sample to lower or raise the pitch then that will
      affect the length and repeat offset. */
-  for (int pow = ptsi->octaves_cheat; pow < 0; pow++) {
+  for (int pow = octaves_cheat; pow < 0; pow++) {
     assert(repeat_offset <= ULONG_MAX / 2);
     repeat_offset *= 2;
 
     assert(sample_len <= ULONG_MAX / 2);
     sample_len *= 2;
   }
-  for (int pow = ptsi->octaves_cheat; pow > 0; pow--) {
+  for (int pow = octaves_cheat; pow > 0; pow--) {
     repeat_offset /= 2;
     sample_len /= 2;
   }
@@ -561,20 +560,25 @@ static bool make_pt_sample(PTSampleInfo * const ptsi,
     fprintf(stderr, "Sample data file '%s' is too long with %d repeats "
                     "from offset %u (when pre-tuned by %d octaves)\n",
                     sample->file_name, num_repeats, sample->repeat_offset,
-                    ptsi->octaves_cheat);
+                    octaves_cheat);
     return false; /* failure */
   }
 
   assert(repeat_len <= sample_len);
   assert(repeat_len <= USHRT_MAX);
-  ptsi->half_repeat_len = (unsigned short)repeat_len;
-
   assert(sample_len <= USHRT_MAX);
-  ptsi->half_len = (unsigned short)sample_len;
-
   assert(repeat_offset < sample_len);
   assert(repeat_offset <= USHRT_MAX);
-  ptsi->half_repeat_offset = (unsigned short)repeat_offset;
+
+  *ptsi = (PTSampleInfo){
+    .num_repeats = num_repeats,
+    .sample_num = sample_num,
+    .half_len = (unsigned short)sample_len,
+    .half_repeat_offset = (unsigned short)repeat_offset,
+    .half_repeat_len = (unsigned short)repeat_len,
+    .pt_tuning = pt_tuning,
+    .octaves_cheat = octaves_cheat,
+  };
 
   return true; /* success */
 }
@@ -835,12 +839,13 @@ static bool add_pt_sample(const unsigned int flags,
     return false;
   }
   PTSampleInfo * const ptsi = &pt_samples->sample_info[pt_samples->count];
-  ptsi->sample_num = sample_num;
-  ptsi->pt_tuning = pt_tuning;
+
   if (!make_pt_sample(ptsi,
                       sample,
                       num_repeats,
-                      octaves_cheat))
+                      sample_num,
+                      octaves_cheat,
+                      pt_tuning))
     return false;
 
   if ((flags & FLAGS_VERBOSE) != 0) {
