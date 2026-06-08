@@ -178,13 +178,15 @@ static bool add_sf_sample(const bool verbose, SampleArray * const sf_samples,
   assert(sf_samples->sample_info != NULL);
   SampleInfo * const write_ptr = &sf_samples->sample_info[sample_id];
 
-  strncpy(write_ptr->file_name, file_name, sizeof(write_ptr->file_name) - 1);
-  write_ptr->file_name[sizeof(write_ptr->file_name) - 1] = '\0';
+  *write_ptr = (SampleInfo){
+    .file_name = "",
+    .repeat_offset = repeat_offset,
+    .tuning = tuning,
+    .len = len,
+    .type = type,
+  };
 
-  write_ptr->len = len;
-  write_ptr->repeat_offset = repeat_offset;
-  write_ptr->type = type;
-  write_ptr->tuning = tuning;
+  strncpy(write_ptr->file_name, file_name, sizeof(write_ptr->file_name) - 1);
 
   if (verbose) {
     printf("Sample %d ('%s') has length %lu, tuning %d and repeats from %d\n",
