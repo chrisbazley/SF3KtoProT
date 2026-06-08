@@ -879,10 +879,6 @@ static bool make_pt_sample_list(const unsigned int flags,
   assert((sf_samples->alloc == 0) == (sf_samples->sample_info == NULL));
   assert(pt_samples != NULL);
 
-  pt_samples->count = 0;
-  pt_samples->alloc = 0;
-  pt_samples->sample_info = NULL;
-
   if ((flags & FLAGS_VERBOSE) != 0) {
     puts("SF3000 voice table:");
     for (int v = 0; v < NUM_SF_VOICES; v++)
