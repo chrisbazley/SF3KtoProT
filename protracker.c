@@ -1518,7 +1518,13 @@ bool create_protracker(unsigned int flags,
   assert(in != NULL);
   assert(!reader_ferror(in));
 
-  SFTrack music_data;
+  SFTrack music_data = {
+    .speed = 0,
+    .voice_table = {0},
+    .last_pattern_no = 0,
+    .play_order = {0},
+    .patterns = NULL,
+  };
   bool success = read_track(flags, in, &music_data);
 
   if (success) {
