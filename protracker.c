@@ -1408,10 +1408,12 @@ static bool read_track(const unsigned int flags, Reader * const r, SFTrack * con
                   c, division_no, pattern_no);
           success = false;
         } else {
-          com->note = raw[0];
-          com->oct_vol = raw[1];
-          com->voice_act = raw[2];
-          com->num_repeats = raw[3];
+          *com = (SFChannelData){
+            .note = raw[0],
+            .oct_vol = raw[1],
+            .voice_act = raw[2],
+            .num_repeats = raw[3],
+          };
         }
       }
     }
