@@ -18,6 +18,11 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifdef _WIN32
+#include <io.h>     /* Required for _setmode and _fileno */
+#include <fcntl.h>  /* Required for _O_BINARY */
+#endif
+
 /* ISO library header files */
 #include <stdio.h>
 #include <stdlib.h>
@@ -90,6 +95,10 @@ static bool process_file(_Optional const char * const input_file,
     /* Default input is from standard input stream */
     fprintf(stderr, "Reading from stdin...\n");
     in = stdin;
+#ifdef _WIN32
+    /* Force binary mode on Windows to prevent corruption */
+    _setmode(_fileno(stdin), _O_BINARY);
+#endif
   }
 
   if (success) {
@@ -107,6 +116,10 @@ static bool process_file(_Optional const char * const input_file,
     } else {
       /* Default output is to standard output stream */
       out = stdout;
+#ifdef _WIN32
+      /* Force binary mode on Windows to prevent corruption */
+      _setmode(_fileno(stdout), _O_BINARY);
+#endif
     }
   }
 
