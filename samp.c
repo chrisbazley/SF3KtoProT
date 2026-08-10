@@ -236,7 +236,7 @@ static bool parse_index(const bool verbose, FILE * const f,
 
     /* Eat up any leading whitespace characters */
     const char *nws;
-    for (nws = str_buf; isspace(*nws); nws++)
+    for (nws = str_buf; isspace((unsigned char)(*nws)); nws++)
     {}
     DEBUGF("Ate %td leading spaces\n", nws - str_buf);
 
