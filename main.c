@@ -364,6 +364,10 @@ int main(int argc, const char *argv[])
       rtn = EXIT_FAILURE;
     }
     index_file = stringbuffer_get_pointer(&default_index);
+    assert(index_file);
+    if (index_file == NULL) {
+      rtn = EXIT_FAILURE;
+    }
   }
 
   SampleArray sf_samples = {0, 0, NULL};
