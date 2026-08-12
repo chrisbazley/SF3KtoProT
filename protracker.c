@@ -1441,7 +1441,7 @@ static bool write_track(const unsigned int flags,
   assert(!(flags & ~FLAGS_ALL));
   assert(song_name != NULL);
   assert(music_data != NULL);
-  assert(song_len >= 0);
+  assert(song_len >= 1);
   assert(song_len <= MAX_SF_PATTERNS);
   assert(pt_song_len >= 1);
   assert(pt_song_len > song_len);
@@ -1527,7 +1527,10 @@ bool create_protracker(unsigned int flags,
     /* Find the number of song positions in the SF3000 play order. */
     int pt_song_len;
     const int song_len = find_song_len(&music_data);
-    if (song_len >= MAX_SF_PATTERNS) {
+    if (song_len == 0) {
+      fprintf(stderr, "Empty song in input file\n");
+      success = false;
+    } else if (song_len >= MAX_SF_PATTERNS) {
       fprintf(stderr, "Unterminated pattern play order in input file\n");
       success = false;
     } else {
