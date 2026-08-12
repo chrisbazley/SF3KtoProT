@@ -1525,7 +1525,7 @@ bool create_protracker(unsigned int flags,
 
   if (success) {
     /* Find the number of song positions in the SF3000 play order. */
-    int pt_song_len;
+    int pt_song_len = 0;
     const int song_len = find_song_len(&music_data);
     if (song_len == 0) {
       fprintf(stderr, "Empty song in input file\n");
