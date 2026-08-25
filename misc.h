@@ -27,7 +27,7 @@
 #endif
 
 #ifdef FORTIFY
-#include "Fortify.h"
+#include "fortify.h"
 #else
 #define Fortify_CheckAllMemory()
 #endif
