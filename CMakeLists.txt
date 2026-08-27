@@ -1,15 +1,16 @@
 cmake_minimum_required(VERSION 3.11)
 project(SF3KtoProT C)
 
+option(USE_OPTIONAL "Enable the _Optional qualifier" OFF)
+option(USE_FORTIFY "Enable Fortify memory-allocation checking" OFF)
+option(ENABLE_CLANG_TIDY "Run clang-tidy during compilation" OFF)
+
 include(FetchContent)
 
 FetchContent_Declare(CBUtil GIT_REPOSITORY https://github.com/chrisbazley/CBUtilLib.git GIT_TAG main)
 FetchContent_Declare(Stream GIT_REPOSITORY https://github.com/chrisbazley/StreamLib.git GIT_TAG main)
 
 FetchContent_MakeAvailable(CBUtil Stream)
-
-option(USE_OPTIONAL "Enable the _Optional qualifier" OFF)
-option(ENABLE_CLANG_TIDY "Run clang-tidy during compilation" OFF)
 
 if(USE_OPTIONAL)
     if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang|AppleClang")
@@ -24,6 +25,15 @@ if(USE_OPTIONAL)
         set(CMAKE_XCODE_ATTRIBUTE_CLANG_ANALYZER_OTHER_FLAGS
             "-analyzer-checker optionality,core -analyzer-max-loop 32")
     endif()
+endif()
+
+if(USE_FORTIFY)
+    FetchContent_Declare(Fortify
+        GIT_REPOSITORY https://github.com/chrisbazley/Fortify.git
+        GIT_TAG main
+    )
+
+    FetchContent_MakeAvailable(Fortify)
 endif()
 
 set(CMAKE_C_STANDARD 99)
