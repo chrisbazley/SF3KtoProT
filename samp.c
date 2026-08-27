@@ -176,6 +176,9 @@ static bool add_sf_sample(const bool verbose, SampleArray * const sf_samples,
     sf_samples->count = sample_id+1;
   }
   assert(sf_samples->sample_info != NULL);
+  if (!sf_samples->sample_info) {
+    return false;
+  }
   SampleInfo * const write_ptr = &sf_samples->sample_info[sample_id];
 
   *write_ptr = (SampleInfo){
