@@ -136,6 +136,9 @@ static bool add_sf_sample(const bool verbose, SampleArray * const sf_samples,
   assert(sf_samples->count <= sf_samples->alloc);
   assert((sf_samples->alloc == 0) == (sf_samples->sample_info == NULL));
   assert(sample_id >= 0);
+  if (sample_id < 0) {
+    return false;
+  }
   assert(sample_id <= UCHAR_MAX);
   assert(file_name != NULL);
   assert(repeat_offset >= 0);
