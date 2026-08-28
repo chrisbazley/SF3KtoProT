@@ -238,10 +238,13 @@ int main(int argc, const char *argv[])
       clearerr(stdout);
       printf("------ Allocation limit %lu ------\n", limit);
     }
+
     Fortify_SetNumAllocationsLimit(limit);
     Fortify_EnterScope();
     rtn = real_main(argc, argv);
     Fortify_LeaveScope();
+    Fortify_SetNumAllocationsLimit(ULONG_MAX);
+
     if (!simulate_failures || rtn == EXIT_SUCCESS)
       break;
     if (++failures_simulated == failures_to_simulate) {
@@ -252,7 +255,6 @@ int main(int argc, const char *argv[])
     }
   } while (true);
 
-  Fortify_SetNumAllocationsLimit(ULONG_MAX);
   return rtn;
 }
 
