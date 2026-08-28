@@ -1072,6 +1072,12 @@ static bool transcode_patterns(const unsigned int  flags,
   assert(f != NULL);
   assert(!ferror(f));
 
+  assert(sf_samples->sample_info);
+  assert(music_data->patterns);
+  if (!sf_samples->sample_info || !music_data->patterns) {
+    return false;
+  }
+
   last_pattern_no = music_data->last_pattern_no;
 
   /* An extra pattern may be required to allow late notes to finish. */
