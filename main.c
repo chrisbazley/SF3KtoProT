@@ -214,16 +214,16 @@ int real_main(int argc, const char *argv[]);
 
 int main(int argc, const char *argv[])
 {
-  const char *const failure_simulation =
+  _Optional const char *const failure_simulation =
     getenv("SF3K_FORTIFY_FAILURE_SIMULATION");
   bool simulate_failures =
-    failure_simulation != NULL && !strcmp(failure_simulation, "1");
+    failure_simulation != NULL && !strcmp(&*failure_simulation, "1");
   unsigned long failures_to_simulate = ULONG_MAX;
-  const char *const failure_attempts =
+  _Optional const char *const failure_attempts =
     getenv("SF3K_FORTIFY_FAILURE_ATTEMPTS");
   if (failure_attempts != NULL) {
     char *end;
-    const unsigned long attempts = strtoul(failure_attempts, &end, 10);
+    const unsigned long attempts = strtoul(&*failure_attempts, &end, 10);
     if (*failure_attempts != '\0' && *end == '\0' && attempts > 0)
       failures_to_simulate = attempts;
   }
