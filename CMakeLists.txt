@@ -127,8 +127,7 @@ if(USE_FORTIFY)
         -P ${CMAKE_CURRENT_SOURCE_DIR}/RunTests.cmake
     )
     set_tests_properties(SF3KtoProTFortifyFailureTest PROPERTIES
-        ENVIRONMENT
-            "SF3K_FORTIFY_FAILURE_SIMULATION=1;SF3K_FORTIFY_FAILURE_ATTEMPTS=256"
+        ENVIRONMENT "SF3K_FORTIFY_FAILURE_SIMULATION=1"
         LABELS "integration;fortify"
         RUN_SERIAL TRUE
         TIMEOUT 300
