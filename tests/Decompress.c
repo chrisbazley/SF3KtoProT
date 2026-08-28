@@ -4,7 +4,6 @@
  */
 
 #include <stdbool.h>
-#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -26,22 +25,7 @@ enum {
   HistoryLog2 = 9
 };
 
-#ifdef FORTIFY
-static int real_main(int argc, char *argv[]);
-
 int main(int argc, char *argv[])
-{
-  Fortify_SetNumAllocationsLimit(ULONG_MAX);
-  Fortify_EnterScope();
-  const int result = real_main(argc, argv);
-  Fortify_LeaveScope();
-  return result;
-}
-
-static int real_main(int argc, char *argv[])
-#else
-int main(int argc, char *argv[])
-#endif
 {
   if (argc != 3)
     return EXIT_FAILURE;
