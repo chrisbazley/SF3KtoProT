@@ -100,3 +100,37 @@ target_link_libraries(SF3KtoProT PRIVATE
 target_compile_definitions(SF3KtoProT PRIVATE
     $<$<CONFIG:Debug>:DEBUG_OUTPUT>
 )
+
+add_executable(SF3KMusicDecompress tests/Decompress.c)
+target_link_libraries(SF3KMusicDecompress PRIVATE Stream)
+
+enable_testing()
+add_test(NAME SF3KtoProTIntegrationTest COMMAND ${CMAKE_COMMAND}
+    -D SFTOPROT=$<TARGET_FILE:SF3KtoProT>
+    -D DECOMPRESS=$<TARGET_FILE:SF3KMusicDecompress>
+    -D INDEX_FILE=${CMAKE_CURRENT_SOURCE_DIR}/index
+    -D DEBUG_OUTPUT=$<CONFIG:Debug>
+    -P ${CMAKE_CURRENT_SOURCE_DIR}/RunTests.cmake
+)
+set_tests_properties(SF3KtoProTIntegrationTest PROPERTIES
+    TIMEOUT 180
+    LABELS integration
+)
+
+if(USE_FORTIFY)
+    add_test(NAME SF3KtoProTFortifyFailureTest COMMAND ${CMAKE_COMMAND}
+        -D SFTOPROT=$<TARGET_FILE:SF3KtoProT>
+        -D DECOMPRESS=$<TARGET_FILE:SF3KMusicDecompress>
+        -D INDEX_FILE=${CMAKE_CURRENT_SOURCE_DIR}/index
+        -D DEBUG_OUTPUT=$<CONFIG:Debug>
+        -D FORTIFY_FAILURE_TEST=TRUE
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/RunTests.cmake
+    )
+    set_tests_properties(SF3KtoProTFortifyFailureTest PROPERTIES
+        ENVIRONMENT
+            "SF3K_FORTIFY_FAILURE_SIMULATION=1;SF3K_FORTIFY_FAILURE_ATTEMPTS=256"
+        LABELS "integration;fortify"
+        RUN_SERIAL TRUE
+        TIMEOUT 300
+    )
+endif()

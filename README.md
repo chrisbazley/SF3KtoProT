@@ -763,6 +763,14 @@ For example, use the following commands to build on Linux:
   make
 ```
 
+  A CMake build configured with `-DUSE_FORTIFY=ON` uses Fortify to check
+memory allocations during normal execution. Set the environment variable
+`SF3K_FORTIFY_FAILURE_SIMULATION` to `1` to retry a command with each
+successive allocation or intercepted I/O operation forced to fail. This mode
+can be very slow and is intended for targeted testing. The optional
+`SF3K_FORTIFY_FAILURE_ATTEMPTS` variable limits the number of simulated
+failures before one final unrestricted attempt.
+
   Three make files are also supplied:
 
 1. 'Makefile' is intended for use with GNU Make and the GNU C Compiler

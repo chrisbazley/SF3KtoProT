@@ -24,6 +24,7 @@
 #endif
 
 /* ISO library header files */
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -213,18 +214,45 @@ int real_main(int argc, const char *argv[]);
 
 int main(int argc, const char *argv[])
 {
-  unsigned long limit;
-  int rtn = EXIT_FAILURE;
-  for (limit = 0; rtn != EXIT_SUCCESS; ++limit)
+  const char *const failure_simulation =
+    getenv("SF3K_FORTIFY_FAILURE_SIMULATION");
+  bool simulate_failures =
+    failure_simulation != NULL && !strcmp(failure_simulation, "1");
+  unsigned long failures_to_simulate = ULONG_MAX;
+  const char *const failure_attempts =
+    getenv("SF3K_FORTIFY_FAILURE_ATTEMPTS");
+  if (failure_attempts != NULL) {
+    char *end;
+    const unsigned long attempts = strtoul(failure_attempts, &end, 10);
+    if (*failure_attempts != '\0' && *end == '\0' && attempts > 0)
+      failures_to_simulate = attempts;
+  }
+  unsigned long limit = simulate_failures ? 0 : ULONG_MAX;
+  unsigned long failures_simulated = 0;
+  int rtn;
+
+  do
   {
-    rewind(stdin);
-    clearerr(stdout);
-    printf("------ Allocation limit %ld ------\n", limit);
+    if (simulate_failures) {
+      rewind(stdin);
+      clearerr(stdout);
+      printf("------ Allocation limit %lu ------\n", limit);
+    }
     Fortify_SetNumAllocationsLimit(limit);
     Fortify_EnterScope();
     rtn = real_main(argc, argv);
     Fortify_LeaveScope();
-  }
+    if (!simulate_failures || rtn == EXIT_SUCCESS)
+      break;
+    if (++failures_simulated == failures_to_simulate) {
+      simulate_failures = false;
+      limit = ULONG_MAX;
+    } else {
+      ++limit;
+    }
+  } while (true);
+
+  Fortify_SetNumAllocationsLimit(ULONG_MAX);
   return rtn;
 }
 
