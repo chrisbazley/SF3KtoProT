@@ -102,7 +102,7 @@ target_compile_definitions(SF3KtoProT PRIVATE
 )
 
 add_executable(SF3KMusicDecompress tests/Decompress.c)
-target_link_libraries(SF3KMusicDecompress PRIVATE Stream)
+target_link_libraries(SF3KMusicDecompress PRIVATE CBUtil Stream)
 
 enable_testing()
 add_test(NAME SF3KtoProTIntegrationTest COMMAND ${CMAKE_COMMAND}
