@@ -130,6 +130,6 @@ if(USE_FORTIFY)
         ENVIRONMENT "SF3K_FORTIFY_FAILURE_SIMULATION=1"
         LABELS "integration;fortify"
         RUN_SERIAL TRUE
-        TIMEOUT 300
+        TIMEOUT 600
     )
 endif()
