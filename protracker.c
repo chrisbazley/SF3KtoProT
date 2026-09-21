@@ -476,12 +476,10 @@ static signed int note_to_pt(const SFChannelData * const com,
   /* Convert the SF3000 octave and note numbers into ProTracker format.
      This function may return an out-of-range octave number because the
      ProTracker format is more restrictive. */
-  signed long note;
-  signed int octave;
 
   assert(com != NULL);
-  octave = (com->oct_vol & 0xf) - 1;
-  note = com->note & 0xfl;
+  signed int octave = (com->oct_vol & 0xf) - 1;
+  signed long note = com->note & 0xfl;
   note += semitone_tuning;
   while (note < 0) {
     octave --;
@@ -506,16 +504,16 @@ static bool make_pt_sample(PTSampleInfo * const ptsi,
                            const signed int octaves_cheat,
                            const signed long pt_tuning)
 {
-  unsigned long repeat_len, sample_len, repeat_offset;
+  unsigned long repeat_len;
 
   assert(ptsi != NULL);
   assert(sample != NULL);
 
   /* The resolution of the sample data will be reduced from 8 to 16 bits. */
-  sample_len = sample->len / 2;
+  unsigned long sample_len = sample->len / 2;
   DEBUGF("Sample len: %lu\n", sample_len);
 
-  repeat_offset = sample->repeat_offset; /* in sample frames not bytes */
+  unsigned long repeat_offset = sample->repeat_offset; /* in sample frames not bytes */
   DEBUGF("Repeat offset: %lu\n", repeat_offset);
 
   /* If we pre-tune the sample to lower or raise the pitch then that will
@@ -589,14 +587,14 @@ static signed int calc_octaves_cheat(const unsigned int flags,
                                      _Optional int * const octave_out,
                                      _Optional int * const note_out)
 {
-  signed int octave, octaves_cheat, min_octave, max_octave;
+  signed int octaves_cheat, min_octave, max_octave;
 
   assert(!(flags & ~FLAGS_ALL));
   assert(com != NULL);
 
   /* Convert the SF3000 octave and note numbers into their ProTracker
      equivalents. */
-  octave = note_to_pt(com, note_out, pt_tuning / PT_TUNING_SEMITONE);
+  signed int octave = note_to_pt(com, note_out, pt_tuning / PT_TUNING_SEMITONE);
 
   /* ProTracker octaves 0 and 4 are non-standard and may not be available. */
   if ((flags & FLAGS_EXTRA_OCTAVES) == 0) {
@@ -788,10 +786,9 @@ static int find_pt_sample(const PTSampleArray * const pt_samples,
 static signed long sf_to_pt_tuning(const signed int sf_tuning)
 {
   const int pt_octave = PT_TUNING_SEMITONE * SEMITONES_PER_OCTAVE;
-  signed int round;
 
   assert(check_tuning(sf_tuning));
-  round = (sf_tuning >= 0 ? SF_TUNING_OCTAVE / 2 : -(SF_TUNING_OCTAVE / 2));
+  signed int round = (sf_tuning >= 0 ? SF_TUNING_OCTAVE / 2 : -(SF_TUNING_OCTAVE / 2));
   return ((long)sf_tuning * pt_octave + round) / SF_TUNING_OCTAVE;
 }
 
@@ -1057,7 +1054,6 @@ static bool transcode_patterns(const unsigned int  flags,
                                const int last_play,
                                FILE * const f)
 {
-  long int last_pattern_no;
   ChannelState channels[NUM_PT_CHANNELS], final_channels[NUM_PT_CHANNELS];
 
   assert(music_data != NULL);
@@ -1078,7 +1074,7 @@ static bool transcode_patterns(const unsigned int  flags,
     return false;
   }
 
-  last_pattern_no = music_data->last_pattern_no;
+  long int last_pattern_no = music_data->last_pattern_no;
 
   /* An extra pattern may be required to allow late notes to finish. */
   if ((flags & FLAGS_BLANK_PATTERN) != 0)
@@ -1136,29 +1132,26 @@ static bool transcode_patterns(const unsigned int  flags,
       assert(NUM_PT_CHANNELS <= NUM_SF_CHANNELS);
       for (int c = 0; c < NUM_PT_CHANNELS; c++) {
         const SFChannelData * const com = &division->channels[c];
-        int sample_num, note;
-        signed long pt_tuning;
-        signed int octave;
+        int note;
 
         /* Is this a glissando effect? */
         if (com->voice_act >> 4 < SF_GLISSANDO_THRESHOLD)
           continue; /* no */
 
-        sample_num = music_data->voice_table[com->voice_act & 0xf];
+        int sample_num = music_data->voice_table[com->voice_act & 0xf];
         if ((sample_num >= sf_samples->count) ||
             ((sf_samples->sample_info + sample_num)->type == SampleInfo_Type_Unused))
           continue;
 
         /* Convert the SF3000 octave and note numbers into ProTracker
            equivalents. */
-        pt_tuning = sf_to_pt_tuning((sf_samples->sample_info + sample_num)->tuning);
-        octave = note_to_pt(com, &note, pt_tuning / PT_TUNING_SEMITONE);
+        signed long pt_tuning = sf_to_pt_tuning((sf_samples->sample_info + sample_num)->tuning);
+        signed int octave = note_to_pt(com, &note, pt_tuning / PT_TUNING_SEMITONE);
 
         /* A quirk is that a glissando affects all instances of the specified
            sample - regardless of which channel it is playing on. */
         for (int c2 = 0; c2 < NUM_SF_CHANNELS; c2++) {
-          const PTSampleInfo *ptsi;
-          signed int min_octave, max_octave, chan_octave;
+          signed int min_octave, max_octave;
 
           if (channels[c2].sample_num != sample_num)
             continue;
@@ -1177,7 +1170,7 @@ static bool transcode_patterns(const unsigned int  flags,
           /* Get a pointer to the ProTracker sample information */
           assert(channels[c2].pt_sample_no > 0);
           assert(channels[c2].pt_sample_no <= pt_samples->count);
-          ptsi = &pt_samples->sample_info[channels[c2].pt_sample_no - 1];
+          const PTSampleInfo *ptsi = &pt_samples->sample_info[channels[c2].pt_sample_no - 1];
 
           /* Make the target pitch specific to the variation of the sample
              playing on this channel (which may have been pre-tuned to a
@@ -1186,7 +1179,7 @@ static bool transcode_patterns(const unsigned int  flags,
             DEBUGF("Glissando of pre-tuned sample (by %d octaves)\n",
                       ptsi->octaves_cheat);
           }
-          chan_octave = octave - ptsi->octaves_cheat;
+          signed int chan_octave = octave - ptsi->octaves_cheat;
           /* e.g. Use octave 1 to obtain octave 0 with a sample pre-tuned 'up'
                   by -1 octave. */
 
