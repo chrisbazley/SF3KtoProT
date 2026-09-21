@@ -22,8 +22,8 @@
 #include <stdbool.h>
 
 #ifdef ACORN_C
-/* RISC OS header files */
-#include "kernel.h"
+/* CBOSLib header files */
+#include "OSFile.h"
 #endif
 
 /* Local header files */
@@ -40,14 +40,11 @@ enum
 bool set_file_type(const char *file_path)
 {
 #ifdef ACORN_C
-  _kernel_osfile_block kob;
-
   assert(file_path != NULL);
 
   /* Apply the RISC OS file type for Amiga ProTracker music
      to the specified file. */
-  kob.load = FTYPE_TEQMUSIC;
-  return (_kernel_osfile(18, file_path, &kob) != _kernel_ERROR);
+  return os_file_set_type(file_path, FTYPE_TEQMUSIC) == NULL;
 #else
   (void)file_path;
   return true;

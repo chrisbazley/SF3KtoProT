@@ -8,9 +8,10 @@ option(ENABLE_CLANG_TIDY "Run clang-tidy during compilation" OFF)
 include(FetchContent)
 
 FetchContent_Declare(CBUtil GIT_REPOSITORY https://github.com/chrisbazley/CBUtilLib.git GIT_TAG main)
+FetchContent_Declare(CBOS GIT_REPOSITORY https://github.com/chrisbazley/CBOSLib.git GIT_TAG main)
 FetchContent_Declare(Stream GIT_REPOSITORY https://github.com/chrisbazley/StreamLib.git GIT_TAG main)
 
-FetchContent_MakeAvailable(CBUtil Stream)
+FetchContent_MakeAvailable(CBUtil CBOS Stream)
 
 if(USE_OPTIONAL)
     if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang|AppleClang")
@@ -94,6 +95,7 @@ add_executable(SF3KtoProT ${SOURCES} ${HEADER_FILES})
 
 target_link_libraries(SF3KtoProT PRIVATE 
     CBUtil
+    CBOS
     Stream
 )
 
