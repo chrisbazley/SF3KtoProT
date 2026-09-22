@@ -22,7 +22,7 @@
 #ifdef ACORN_C
 #define EXT_SEPARATOR '/' /* e.g. ADFS::4.$.Star3000.Graphics.Earth1/obj */
 #else
-#define PATH_SEPARATOR '.'
+#define EXT_SEPARATOR '.'
 #endif
 #endif
 
