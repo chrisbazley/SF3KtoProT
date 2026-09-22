@@ -15,7 +15,7 @@ include MakeCommon
 
 DebugObjects = $(addprefix debug.,$(ObjectListObj))
 ReleaseObjects = $(addprefix o.,$(ObjectListObj))
-DebugLibs = C:o.Stubs Fortify:o.fortify C:o.CBDebugLib C:debug.CBUtilLib \
+DebugLibs = C:o.Stubs C:o.CBPseudoLib Fortify:o.fortify C:o.CBDebugLib C:debug.CBUtilLib \
             C:debug.CBOSLib C:debug.GKeyLib C:debug.StreamLib
 ReleaseLibs = C:o.StubsG C:o.CBUtilLib C:o.CBOSLib C:o.GKeyLib C:o.StreamLib
 
