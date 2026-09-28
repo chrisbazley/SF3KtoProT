@@ -54,7 +54,6 @@ static long int get_sample_len(const bool verbose,
   long int len = -1;
   assert(samples_dir != NULL);
   assert(file_name != NULL);
-  assert(strlen(file_name) < sizeof(sf_samples->sample_info[0].file_name));
 
   /* Construct full path name of sample data file */
   StringBuffer sample_path;
@@ -142,6 +141,7 @@ static bool add_sf_sample(const bool verbose, SampleArray * const sf_samples,
   }
   assert(sample_id <= UCHAR_MAX);
   assert(file_name != NULL);
+  assert(strlen(file_name) < sizeof(sf_samples->sample_info[0].file_name));
   assert(repeat_offset >= 0);
   assert(len >= 0);
   assert((repeat_offset / 2) < (len / 4));
