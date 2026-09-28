@@ -179,7 +179,7 @@ static bool fput_pt_command(const int pt_effect_com,
   bytes[2] = (pt_effect_com & 0xf) | (pt_sample_no & 0xf) << 4;
 
   /* Write effect value */
-  bytes[3] = pt_effect_val;
+  bytes[3] = (uint8_t)pt_effect_val;
 
   return fwrite(bytes, sizeof(bytes), 1, f) == 1;
 }
@@ -285,7 +285,7 @@ static bool write_sample_table(const unsigned int flags,
      sample table, so we must pad it to the required size. */
   assert(pt_samples->count <= MAX_PT_SAMPLES);
   for (int n = MAX_PT_SAMPLES - pt_samples->count; n != 0; n--) {
-    static const uint8_t blank[BYTES_PER_PT_SAMPLE];
+    static const uint8_t blank[BYTES_PER_PT_SAMPLE] = {0};
     if (fwrite(blank, sizeof(blank), 1, f) != 1)
       return false; /* failure */
   }
@@ -569,8 +569,8 @@ static bool make_pt_sample(PTSampleInfo * const ptsi,
   assert(repeat_offset <= USHRT_MAX);
 
   *ptsi = (PTSampleInfo){
-    .num_repeats = num_repeats,
-    .sample_num = sample_num,
+    .num_repeats = (uint8_t)num_repeats,
+    .sample_num = (uint8_t)sample_num,
     .half_len = (unsigned short)sample_len,
     .half_repeat_offset = (unsigned short)repeat_offset,
     .half_repeat_len = (unsigned short)repeat_len,
@@ -1213,7 +1213,8 @@ static bool transcode_patterns(const unsigned int  flags,
                       c2);
           }
           /* Schedule an immediate Tone Portamento command */
-          channels[c2].target_pitch = get_pt_period(chan_octave, note);
+          channels[c2].target_pitch =
+            (unsigned short)get_pt_period(chan_octave, note);
           channels[c2].glissando_state = GlissandoState_Start;
 
           DEBUGF("New glissando of sample %d to pitch %d on "
@@ -1292,8 +1293,8 @@ static bool transcode_patterns(const unsigned int  flags,
           }
 
           channels[c] = (ChannelState){
-            .sample_num = sample_num,
-            .pt_sample_no = pt_sample_no,
+            .sample_num = (unsigned char)sample_num,
+            .pt_sample_no = (unsigned char)pt_sample_no,
             .target_pitch = 0,
             .glissando_state = GlissandoState_None,
           };
@@ -1348,7 +1349,7 @@ static bool read_track(const unsigned int flags, Reader * const r, SFTrack * con
   if ((flags & FLAGS_VERBOSE) != 0)
     printf("SF3000 music tempo is %d cs\n", s);
 
-  music_data->speed = s;
+  music_data->speed = (uint8_t)s;
 
   if (reader_fseek(r, 16, SEEK_SET)) {
     fprintf(stderr, "Failed to seek voice table\n");
