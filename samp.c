@@ -54,6 +54,7 @@ static long int get_sample_len(const bool verbose,
   long int len = -1;
   assert(samples_dir != NULL);
   assert(file_name != NULL);
+  assert(strlen(file_name) < sizeof(sf_samples->sample_info[0].file_name));
 
   /* Construct full path name of sample data file */
   StringBuffer sample_path;
@@ -192,7 +193,7 @@ static bool add_sf_sample(const bool verbose, SampleArray * const sf_samples,
     .type = type,
   };
 
-  strncpy(write_ptr->file_name, file_name, sizeof(write_ptr->file_name) - 1);
+  memcpy(write_ptr->file_name, file_name, strlen(file_name) + 1);
 
   if (verbose) {
     printf("Sample %d ('%s') has length %lu, tuning %d and repeats from %d\n",
