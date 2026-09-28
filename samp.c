@@ -141,6 +141,7 @@ static bool add_sf_sample(const bool verbose, SampleArray * const sf_samples,
   }
   assert(sample_id <= UCHAR_MAX);
   assert(file_name != NULL);
+  assert(strlen(file_name) < sizeof(sf_samples->sample_info[0].file_name));
   assert(repeat_offset >= 0);
   assert(len >= 0);
   assert((repeat_offset / 2) < (len / 4));
@@ -192,7 +193,7 @@ static bool add_sf_sample(const bool verbose, SampleArray * const sf_samples,
     .type = type,
   };
 
-  strncpy(write_ptr->file_name, file_name, sizeof(write_ptr->file_name) - 1);
+  memcpy(write_ptr->file_name, file_name, strlen(file_name) + 1);
 
   if (verbose) {
     printf("Sample %d ('%s') has length %lu, tuning %d and repeats from %d\n",
