@@ -36,7 +36,6 @@
 
 /* Local header files */
 #include "misc.h"
-#include "main.h"
 #include "samp.h"
 #include "protracker.h"
 
