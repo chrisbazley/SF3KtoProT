@@ -1053,7 +1053,8 @@ static bool transcode_patterns(const unsigned int  flags,
                                const int last_play,
                                FILE * const f)
 {
-  ChannelState channels[NUM_PT_CHANNELS], final_channels[NUM_PT_CHANNELS];
+  ChannelState channels[NUM_PT_CHANNELS], saved_channels[NUM_PT_CHANNELS];
+  _Optional const ChannelState *final_channels = NULL;
 
   assert(music_data != NULL);
   assert(pt_samples != NULL);
@@ -1093,7 +1094,11 @@ static bool transcode_patterns(const unsigned int  flags,
          at the end of the pattern played immediately beforehand, to allow
          continuation of any glissando effects. */
       pattern = NULL;
-      memcpy(&channels, &final_channels, sizeof(channels));
+      if (final_channels == NULL) {
+        fprintf(stderr, "Final play-order pattern was not transcoded\n");
+        return false;
+      }
+      memcpy(channels, &*final_channels, sizeof(channels));
     } else {
       /* Clear the state of every channel at the start of each new pattern. This
          isn't strictly accurate, but it's the best that we can practically do
@@ -1308,7 +1313,8 @@ static bool transcode_patterns(const unsigned int  flags,
       DEBUGF("Retaining channels state at end of pattern %ld\n",
                 pattern_no);
 
-      memcpy(&final_channels, &channels, sizeof(final_channels));
+      memcpy(saved_channels, channels, sizeof(saved_channels));
+      final_channels = saved_channels;
     }
   }
   return true; /* success */
