@@ -22,8 +22,8 @@ include MakeCommon
 
 DebugObjects = $(addsuffix .debug,$(ObjectList))
 ReleaseObjects = $(addsuffix .o,$(ObjectList))
-DebugLibs = CBPseudo CBDebug CBUtildbg CBOSdbg Streamdbg GKeydbg Fortify
-ReleaseLibs = CBUtil CBOS Stream GKey
+DebugLibs = strbdbg CBPseudo CBDebug CBUtildbg CBOSdbg Streamdbg GKeydbg Fortify
+ReleaseLibs = strb CBUtil CBOS Stream GKey
 
 # Final targets:
 all: SF3KtoProT SF3KtoProTD 

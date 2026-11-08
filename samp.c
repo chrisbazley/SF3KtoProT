@@ -28,7 +28,7 @@
 #include <errno.h>
 
 /* CBUtilLib headers */
-#include "StringBuff.h"
+#include "strb.h"
 
 /* Local header files */
 #include "misc.h"
@@ -56,21 +56,18 @@ static long int get_sample_len(const bool verbose,
   assert(file_name != NULL);
 
   /* Construct full path name of sample data file */
-  StringBuffer sample_path;
-  stringbuffer_init(&sample_path);
+  STRB_DECL_ALLOC(sample_path, 0);
 
-  if (!stringbuffer_append(&sample_path, samples_dir, SIZE_MAX) ||
-      !stringbuffer_append_separated(&sample_path, PATH_SEPARATOR,
-                                     file_name)) {
+  if (strb_printf(sample_path, "%s%c%s", samples_dir, PATH_SEPARATOR, file_name)) {
     fprintf(stderr, "Failed to allocate memory for sample data file path\n");
   } else {
     /* Get the length of the sample data file */
     if (verbose)
       printf("Opening sample data file '%s'\n",
-             stringbuffer_get_pointer(&sample_path));
+             strb_cptr(sample_path));
 
     _Optional FILE * const sample_handle = fopen(
-         stringbuffer_get_pointer(&sample_path), "rb");
+         strb_cptr(sample_path), "rb");
     if (sample_handle == NULL) {
       fprintf(stderr,
               "Failed to open sample data file: %s\n",
@@ -96,7 +93,7 @@ static long int get_sample_len(const bool verbose,
     }
   }
 
-  stringbuffer_destroy(&sample_path);
+  strb_free(sample_path);
   return len;
 }
 

@@ -16,8 +16,8 @@ include MakeCommon
 
 DebugObjects = $(addsuffix .debug,$(ObjectList))
 ReleaseObjects = $(addsuffix .o,$(ObjectList))
-DebugLibs = CBUtildbg Streamdbg GKeydbg
-ReleaseLibs = CBUtil Stream GKey 
+DebugLibs = strbdbg CBUtildbg Streamdbg GKeydbg
+ReleaseLibs = strb CBUtil Stream GKey
 
 # Final targets:
 all: SF3KtoProT SF3KtoProTD 

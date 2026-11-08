@@ -32,7 +32,7 @@
 #include "Reader.h"
 
 /* CBUtilLib headers */
-#include "StringBuff.h"
+#include "strb.h"
 
 /* Local header files */
 #include "misc.h"
@@ -433,20 +433,17 @@ static bool integrate_samples(const unsigned int flags,
     const SampleInfo * const sample = &sample_array[ptsi->sample_num];
 
     /* Construct full path name of sample data file */
-    StringBuffer sample_path;
-    stringbuffer_init(&sample_path);
+    STRB_DECL_ALLOC(sample_path, 0);
 
-    if (!stringbuffer_append(&sample_path, samples_dir, SIZE_MAX) ||
-        !stringbuffer_append_separated(&sample_path, PATH_SEPARATOR,
-                                       sample->file_name)) {
+    if (strb_printf(sample_path, "%s%c%s", samples_dir, PATH_SEPARATOR, sample->file_name)) {
       fprintf(stderr,"Failed to allocate memory for sample data file path\n");
       success = false;
     } else {
       /* Open the sample data file */
       if ((flags & FLAGS_VERBOSE) != 0)
-        printf("Opening sample data file '%s'\n", stringbuffer_get_pointer(&sample_path));
+        printf("Opening sample data file '%s'\n", strb_cptr(sample_path));
 
-      _Optional FILE * const sample_handle = fopen(stringbuffer_get_pointer(&sample_path), "rb");
+      _Optional FILE * const sample_handle = fopen(strb_cptr(sample_path), "rb");
       if (sample_handle == NULL) {
         fprintf(stderr,
                 "Failed to open sample data file: %s\n",
@@ -462,7 +459,7 @@ static bool integrate_samples(const unsigned int flags,
         fclose(&*sample_handle);
       }
     }
-    stringbuffer_destroy(&sample_path);
+    strb_free(sample_path);
   }
 
   return success;
