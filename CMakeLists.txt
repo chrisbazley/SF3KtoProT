@@ -9,7 +9,7 @@ option(WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 include(FetchContent)
 
 FetchContent_Declare(strb GIT_REPOSITORY https://github.com/chrisbazley/strb_t.git
-    GIT_TAG d049b77abd5a26a4870db9565c3f190d28f9946b)
+    GIT_TAG 965efc73d6f03db7ba839e4c5c940d821e184a30)
 
 FetchContent_Declare(CBUtil GIT_REPOSITORY https://github.com/chrisbazley/CBUtilLib.git GIT_TAG main)
 FetchContent_Declare(CBOS GIT_REPOSITORY https://github.com/chrisbazley/CBOSLib.git GIT_TAG main)
