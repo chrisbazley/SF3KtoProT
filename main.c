@@ -39,7 +39,7 @@
 /* CBUtilLib headers */
 #include "ArgUtils.h"
 #include "StrExtra.h"
-#include "StringBuff.h"
+#include "strb.h"
 
 /* Local header files */
 #include "misc.h"
@@ -386,17 +386,15 @@ int main(int argc, const char *argv[])
   int rtn = EXIT_SUCCESS;
 
   /* If no samples index filename was specified then invent one */
-  StringBuffer default_index;
-  stringbuffer_init(&default_index);
+  STRB_DECL_ALLOC(default_index, 0);
 
   if (index_file == NULL) {
     /* Append hard-wired leaf name to generate full path of index file */
-    if (!stringbuffer_append(&default_index, samples_dir, SIZE_MAX) ||
-        !stringbuffer_append_separated(&default_index, PATH_SEPARATOR, "index")) {
+    if (strb_printf(default_index, "%s%c%s", samples_dir, PATH_SEPARATOR, "index")) {
       fprintf(stderr,"Failed to allocate memory for samples index file path\n");
       rtn = EXIT_FAILURE;
     }
-    index_file = stringbuffer_get_pointer(&default_index);
+    index_file = strb_cptr(default_index);
     assert(index_file);
     if (index_file == NULL) {
       rtn = EXIT_FAILURE;
@@ -413,7 +411,7 @@ int main(int argc, const char *argv[])
     }
   }
 
-  stringbuffer_destroy(&default_index);
+  strb_free(default_index);
 
   if (batch) {
     /* In batch processing mode, the remaining arguments are treated as a
@@ -422,21 +420,19 @@ int main(int argc, const char *argv[])
       /* Invent an output file name */
       assert(argv[n] != NULL);
 
-      StringBuffer default_output;
-      stringbuffer_init(&default_output);
+      STRB_DECL_ALLOC(default_output, 0);
 
-      if (!stringbuffer_append(&default_output, argv[n], SIZE_MAX) ||
-          !stringbuffer_append_separated(&default_output, EXT_SEPARATOR, "mod")) {
+      if (strb_printf(default_output, "%s%c%s", argv[n], EXT_SEPARATOR, "mod")) {
         fprintf(stderr, "Failed to allocate memory for output file path\n");
         rtn = EXIT_FAILURE;
       } else {
-        if (!process_file(argv[n], stringbuffer_get_pointer(&default_output),
+        if (!process_file(argv[n], strb_cptr(default_output),
                           song_name, samples_dir, &sf_samples, flags, raw)) {
           rtn = EXIT_FAILURE;
         }
       }
 
-      stringbuffer_destroy(&default_output);
+      strb_free(default_output);
     }
   } else if (rtn == EXIT_SUCCESS) {
     if (!process_file(input_file, output_file, song_name, samples_dir,

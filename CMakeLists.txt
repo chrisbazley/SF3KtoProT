@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.14)
 project(SF3KtoProT C)
 
 option(USE_OPTIONAL "Enable the _Optional qualifier" OFF)
@@ -8,11 +8,23 @@ option(WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 
 include(FetchContent)
 
+FetchContent_Declare(strb GIT_REPOSITORY https://github.com/chrisbazley/strb_t.git
+    GIT_TAG d049b77abd5a26a4870db9565c3f190d28f9946b)
+
 FetchContent_Declare(CBUtil GIT_REPOSITORY https://github.com/chrisbazley/CBUtilLib.git GIT_TAG main)
 FetchContent_Declare(CBOS GIT_REPOSITORY https://github.com/chrisbazley/CBOSLib.git GIT_TAG main)
 FetchContent_Declare(Stream GIT_REPOSITORY https://github.com/chrisbazley/StreamLib.git GIT_TAG main)
 
-FetchContent_MakeAvailable(CBUtil CBOS Stream)
+FetchContent_MakeAvailable(strb CBUtil CBOS Stream)
+# Apply the existing fault-injection allocator to strb's character storage too.
+if(USE_FORTIFY)
+    target_link_libraries(strb PRIVATE Fortify)
+    if(MSVC)
+        target_compile_options(strb PRIVATE /FIfortify.h)
+    else()
+        target_compile_options(strb PRIVATE -include fortify.h)
+    endif()
+endif()
 
 if(USE_OPTIONAL)
     if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang|AppleClang")
@@ -103,6 +115,7 @@ file(GLOB HEADER_FILES CONFIGURE_DEPENDS "*.h")
 add_executable(SF3KtoProT ${SOURCES} ${HEADER_FILES})
 
 target_link_libraries(SF3KtoProT PRIVATE 
+    strb
     CBUtil
     CBOS
     Stream
