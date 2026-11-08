@@ -234,10 +234,14 @@ static bool write_sample_table(const unsigned int flags,
     const SampleInfo * const sample = &sample_array[ptsi->sample_num];
 
     /* Write sample name, padded with null bytes */
-    char sample_name[22];
-    memset(sample_name, '\0', sizeof(sample_name));
-    sprintf(sample_name, "%s-R%d-O%d", sample->file_name, ptsi->num_repeats,
-            ptsi->octaves_cheat);
+    char sample_name[22] = {0};
+    strb_t *const name = STRB_TMP_USE(sample_name);
+    if (strb_printf(name, "%s-R%d-O%d", sample->file_name, ptsi->num_repeats,
+                    ptsi->octaves_cheat)) {
+      fprintf(stderr, "ProTracker sample name does not fit the output field "
+                      "(sample %d)\n", pt_sample_no);
+      return false;
+    }
 
     if ((flags & FLAGS_VERBOSE) != 0)
       printf("Writing ProTracker sample table entry %d ('%s')\n",
